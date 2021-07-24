@@ -5,6 +5,7 @@ import 'package:spoty/screens/getcode_screen.dart';
 import 'package:spoty/screens/initial_profile.dart';
 import 'package:spoty/screens/map_screen.dart';
 import 'package:spoty/screens/signup_screen.dart';
+import 'package:spoty/screens/subscription_screen.dart';
 import 'package:spoty/screens/welcome_screen.dart';
 
 void main() {
@@ -34,6 +35,7 @@ class MyApp extends StatelessWidget {
         GetCode.routeName: (context) => GetCode(),
         InitialProfile.routeName: (context) => InitialProfile(),
         MapScreen.routeName: (context) => MapScreen(),
+        SubscriptionScreen.routeName: (context) => SubscriptionScreen(),
       },
     );
   }
