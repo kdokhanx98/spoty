@@ -43,6 +43,9 @@ dependencies:
   google_maps_flutter: ^2.0.6
   geolocator: ^7.2.0+1
   in_app_purchase: ^1.0.6
+  firebase_core: ^1.4.0
+  firebase_auth: ^3.0.1
+  sms_autofill: ^1.2.7
 
 
 dev_dependencies:

@@ -8,28 +8,38 @@ import 'package:spoty/screens/signup_screen.dart';
 import 'package:spoty/screens/subscription_screen.dart';
 import 'package:spoty/screens/welcome_screen.dart';
 
-void main() {
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:spoty/services/authservice.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home:  SplashScreen(
+      home: SplashScreen(
           seconds: 3,
-          navigateAfterSeconds: WelcomeScreen(),
-          loadingText: const Text("All Copyright Sopty\n2020 Researved", textAlign: TextAlign.center,),
-          image: Image.asset("assets/images/ic_logo.png", alignment: Alignment.bottomCenter,),
+          navigateAfterSeconds: AuthService().handleAuth(),
+          loadingText: const Text(
+            "All Copyright Sopty\n2020 Researved",
+            textAlign: TextAlign.center,
+          ),
+          image: Image.asset(
+            "assets/images/ic_logo.png",
+            alignment: Alignment.bottomCenter,
+          ),
           backgroundColor: Colors.white,
           styleTextUnderTheLoader: const TextStyle(),
           photoSize: 100.0,
-          loaderColor: Colors.teal
-      ),
+          loaderColor: Colors.teal),
       routes: {
         SignUp.routeName: (context) => SignUp(),
         GetCode.routeName: (context) => GetCode(),
@@ -40,4 +50,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

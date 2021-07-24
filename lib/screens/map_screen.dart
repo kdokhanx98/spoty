@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:spoty/screens/subscription_screen.dart';
+import 'package:spoty/services/authservice.dart';
 
 class MapScreen extends StatefulWidget {
   static const routeName = '/MapScreen';
@@ -26,15 +27,13 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void setCustomMarker() async {
-    mapMarker = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(), "assets/images/father.png");
+    mapMarker = await BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(), "assets/images/father.png");
   }
-
 
   @override
   Widget build(BuildContext context) {
-
-    return  Scaffold(
-
+    return Scaffold(
       body: Stack(
         children: [
           GoogleMap(
@@ -50,48 +49,48 @@ class _MapScreenState extends State<MapScreen> {
             ),
             onMapCreated: (GoogleMapController controller) {
               _controller.complete(controller);
-                _goToCurrentPos().then((value) {
-                  setState(() {
-                    markers.add(
-                        Marker(
-                          markerId: const MarkerId('id-1'),
-                          position: value,
-                          icon: mapMarker,
-                          infoWindow: const InfoWindow(
-                            title: "Father's Name",
-                            snippet: "My Location",
-                          ),
-                        ),
-                    );
-                  });
+              _goToCurrentPos().then((value) {
+                setState(() {
+                  markers.add(
+                    Marker(
+                      markerId: const MarkerId('id-1'),
+                      position: value,
+                      icon: mapMarker,
+                      infoWindow: const InfoWindow(
+                        title: "Father's Name",
+                        snippet: "My Location",
+                      ),
+                    ),
+                  );
                 });
+              });
             },
           ),
-
           Expanded(
             child: Align(
               alignment: FractionalOffset.bottomCenter,
               child: Padding(
-                  padding: const EdgeInsets.only(bottom: 10.0, left: 44, right: 44),
-                  child: GestureDetector(
-                    onTap: (){
-                      Navigator.pushNamed(context, SubscriptionScreen.routeName);
-                    },
-                    child: Container(
-                      decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        color: Colors.blueAccent,
-                      ),
-
-                      width: double.infinity,
-                      alignment: Alignment.center,
-                      height: 40,
-                      child:  const Text(
-                        'Start Tracking',
-                        style: TextStyle(color: Colors.white, fontSize: 17),
-                      ),
+                padding:
+                    const EdgeInsets.only(bottom: 10.0, left: 44, right: 44),
+                child: GestureDetector(
+                  onTap: () {
+                    AuthService().signOut();
+                    // Navigator.pushNamed(context, SubscriptionScreen.routeName);
+                  },
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      color: Colors.blueAccent,
+                    ),
+                    width: double.infinity,
+                    alignment: Alignment.center,
+                    height: 40,
+                    child: const Text(
+                      'Start Tracking',
+                      style: TextStyle(color: Colors.white, fontSize: 17),
                     ),
                   ),
+                ),
               ),
             ),
           ),
@@ -106,7 +105,6 @@ class _MapScreenState extends State<MapScreen> {
       ),
     );
   }
-
 
   Future<LatLng> _goToCurrentPos() async {
     var position = await GeolocatorPlatform.instance

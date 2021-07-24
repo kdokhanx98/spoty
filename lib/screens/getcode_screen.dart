@@ -8,7 +8,6 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 class GetCode extends StatefulWidget {
   static const routeName = '/GetCode';
 
-
   @override
   State<GetCode> createState() => _GetCodeState();
 }
@@ -37,15 +36,24 @@ class _GetCodeState extends State<GetCode> {
         ),
         body: Padding(
           padding: const EdgeInsets.only(left: 24, right: 24),
-
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-               const Text("Enter Verification Code", style: TextStyle(fontWeight: FontWeight.normal, fontSize: 26),),
-              const SizedBox(height: 6,),
-              Text("Sent a code on $mobileNo", style: const TextStyle(fontWeight: FontWeight.w300, fontSize: 18),),
-              const SizedBox(height: 50,),
-
+              const Text(
+                "Enter Verification Code",
+                style: TextStyle(fontWeight: FontWeight.normal, fontSize: 26),
+              ),
+              const SizedBox(
+                height: 6,
+              ),
+              Text(
+                "Sent a code on $mobileNo",
+                style:
+                    const TextStyle(fontWeight: FontWeight.w300, fontSize: 18),
+              ),
+              const SizedBox(
+                height: 50,
+              ),
               PinCodeTextField(
                 length: 6,
                 obscureText: true,
@@ -61,7 +69,7 @@ class _GetCodeState extends State<GetCode> {
                 ),
                 animationDuration: const Duration(milliseconds: 300),
                 enableActiveFill: true,
-           /*     errorAnimationController: errorController,
+                /*     errorAnimationController: errorController,
                 controller: textEditingController,*/
                 onCompleted: (v) {
                   print("Completed");
@@ -77,11 +85,10 @@ class _GetCodeState extends State<GetCode> {
                   //if you return true then it will show the paste confirmation dialog. Otherwise if false, then nothing will happen.
                   //but you can show anything you want here, like your pop up saying wrong paste format or etc
                   return true;
-                }, appContext: context,
+                },
+                appContext: context,
               ),
-
               const Spacer(),
-
               Padding(
                 padding: const EdgeInsets.only(bottom: 35.0),
                 child: Row(
@@ -93,28 +100,36 @@ class _GetCodeState extends State<GetCode> {
                         Row(
                           children: [
                             GestureDetector(
-                                child: Text("Resend Code", style: TextStyle(color: HexColor("#006D72")),),
-                            onTap: (){
-                                  if(!isStarted) {
-                                    _controller.start();
-                                    setState(() {
-                                      isStarted = !isStarted;
-                                    });
-                                  }else{
-                                    _controller.restart();
-                                  }
-                            },
+                              child: Text(
+                                "Resend Code",
+                                style: TextStyle(color: HexColor("#006D72")),
+                              ),
+                              onTap: () {
+                                if (!isStarted) {
+                                  _controller.start();
+                                  setState(() {
+                                    isStarted = !isStarted;
+                                  });
+                                } else {
+                                  _controller.restart();
+                                }
+                              },
                             ),
-                            const SizedBox(width: 10, height: 20,),
+                            const SizedBox(
+                              width: 10,
+                              height: 20,
+                            ),
                             Countdown(
                               controller: _controller,
                               seconds: 30,
-                              build: (BuildContext context, double time) => Text(time.toString()),
+                              build: (BuildContext context, double time) =>
+                                  Text(time.toString()),
                               interval: const Duration(milliseconds: 100),
                               onFinished: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text(" Didn't receive code yet? Resend Code"),
+                                    content: Text(
+                                        " Didn't receive code yet? Resend Code"),
                                   ),
                                 );
                               },
@@ -123,7 +138,6 @@ class _GetCodeState extends State<GetCode> {
                         )
                       ],
                     ),
-
                     RawMaterialButton(
                       onPressed: () {
                         Navigator.pushNamed(context, InitialProfile.routeName);
@@ -141,8 +155,6 @@ class _GetCodeState extends State<GetCode> {
                   ],
                 ),
               )
-
-
             ],
           ),
         ),
