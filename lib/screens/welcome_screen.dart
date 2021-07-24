@@ -3,6 +3,7 @@ import 'package:introduction_screen/introduction_screen.dart';
 import 'package:spoty/screens/signup_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
+
   List<PageViewModel> listPagesViewModel = [
     PageViewModel(
     title: "Lorem Ipsum is simply",

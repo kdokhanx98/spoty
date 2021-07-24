@@ -7,6 +7,7 @@ class InitialProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -144,7 +145,7 @@ class InitialProfile extends StatelessWidget {
 
 
 
-                const SizedBox(height: 120,),
+                SizedBox(height: size.height * 0.15,),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 35.0),
                   child: Align(

@@ -7,7 +7,9 @@ import 'package:spoty/screens/map_screen.dart';
 import 'package:spoty/screens/signup_screen.dart';
 import 'package:spoty/screens/subscription_screen.dart';
 import 'package:spoty/screens/welcome_screen.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:in_app_purchase_android/in_app_purchase_android.dart';
+import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:spoty/services/authservice.dart';
@@ -15,10 +17,18 @@ import 'package:spoty/services/authservice.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  if (defaultTargetPlatform == TargetPlatform.android) {
+    InAppPurchaseAndroidPlatformAddition.enablePendingPurchases();
+  }
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -28,6 +38,14 @@ class MyApp extends StatelessWidget {
       home: SplashScreen(
           seconds: 3,
           navigateAfterSeconds: AuthService().handleAuth(),
+
+          //    FutureBuilder(
+          //  builder: (context, snapshot) =>
+          //  snapshot.connectionState == ConnectionState.waiting
+          //      ? Container()
+          //     : snapshot.data,
+          //  future: checkFirstScreen(),
+          //  ),
           loadingText: const Text(
             "All Copyright Sopty\n2020 Researved",
             textAlign: TextAlign.center,
@@ -48,5 +66,20 @@ class MyApp extends StatelessWidget {
         SubscriptionScreen.routeName: (context) => SubscriptionScreen(),
       },
     );
+  }
+
+  Future checkFirstScreen() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool _seen = (prefs.getBool('seen') ?? false);
+
+    if (_seen) {
+      print("seen");
+      return MapScreen();
+    } else {
+      // Set the flag to true at the end of onboarding screen if everything is successfull and so I am commenting it out
+      print("not seens");
+      prefs.setBool('seen', true);
+      return WelcomeScreen();
+    }
   }
 }

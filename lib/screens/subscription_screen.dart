@@ -1,11 +1,27 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 
-class SubscriptionScreen extends StatelessWidget {
+class SubscriptionScreen extends StatefulWidget {
   static const routeName = '/SubscriptionScreen';
+
+  @override
+  State<SubscriptionScreen> createState() => _SubscriptionScreenState();
+}
+
+class _SubscriptionScreenState extends State<SubscriptionScreen> {
+   late StreamSubscription<List<PurchaseDetails>> _subscription;
+
+
+   @override
+   void dispose() {
+     _subscription.cancel();
+     super.dispose();
+   }
 
   @override
   Widget build(BuildContext context) {
