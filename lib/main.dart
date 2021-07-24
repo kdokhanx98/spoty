@@ -7,12 +7,28 @@ import 'package:spoty/screens/map_screen.dart';
 import 'package:spoty/screens/signup_screen.dart';
 import 'package:spoty/screens/subscription_screen.dart';
 import 'package:spoty/screens/welcome_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:in_app_purchase_android/in_app_purchase_android.dart';
+import 'package:flutter/foundation.dart';
 
 void main() {
+  if (defaultTargetPlatform == TargetPlatform.android) {
+    InAppPurchaseAndroidPlatformAddition.enablePendingPurchases();
+  }
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+
+}
+
+
+class _MyAppState extends State<MyApp> {
+
 
   @override
   Widget build(BuildContext context) {
@@ -20,11 +36,16 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home:  SplashScreen(
+      home: SplashScreen(
           seconds: 3,
-          navigateAfterSeconds: WelcomeScreen(),
-          loadingText: const Text("All Copyright Sopty\n2020 Researved", textAlign: TextAlign.center,),
-          image: Image.asset("assets/images/ic_logo.png", alignment: Alignment.bottomCenter,),
+          navigateAfterSeconds: FutureBuilder(
+            builder: (context, snapshot) => snapshot.connectionState ==
+                ConnectionState.waiting ? Container() : snapshot.data
+            , future: checkFirstScreen(),),
+          loadingText: const Text("All Copyright Sopty\n2020 Researved",
+            textAlign: TextAlign.center,),
+          image: Image.asset(
+            "assets/images/ic_logo.png", alignment: Alignment.bottomCenter,),
           backgroundColor: Colors.white,
           styleTextUnderTheLoader: const TextStyle(),
           photoSize: 100.0,
@@ -38,6 +59,21 @@ class MyApp extends StatelessWidget {
         SubscriptionScreen.routeName: (context) => SubscriptionScreen(),
       },
     );
+  }
+
+  Future checkFirstScreen() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool _seen = (prefs.getBool('seen') ?? false);
+
+    if (_seen) {
+      print("seen");
+      return MapScreen();
+    } else {
+      // Set the flag to true at the end of onboarding screen if everything is successfull and so I am commenting it out
+      print("not seens");
+        prefs.setBool('seen', true);
+      return WelcomeScreen();
+    }
   }
 }
 
