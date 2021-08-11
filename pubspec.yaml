@@ -1,5 +1,5 @@
 name: spoty
-description: A new Flutter project.
+description: GPS location tracking app that helps you locate your family members on the map.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+1
+version: 2.3.0+14
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -45,10 +45,18 @@ dependencies:
   in_app_purchase: ^1.0.6
   firebase_core: ^1.4.0
   firebase_auth: ^3.0.1
+  cloud_firestore: ^2.4.0
+  firebase_storage: ^10.0.1
   sms_autofill: ^1.2.7
   shared_preferences: ^2.0.6
-
-
+  image_picker: ^0.8.2
+  fluttertoast: ^8.0.7
+  steps: ^1.0.1
+  http: ^0.13.3
+  device_info: ^2.0.2
+  change_app_package_name: ^1.0.0
+  provider: ^5.0.0
+  location: ^4.2.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

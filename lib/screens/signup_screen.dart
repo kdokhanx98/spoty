@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:spoty/screens/getcode_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_autofill/sms_autofill.dart';
+import 'package:spoty/screens/share_code_screen.dart';
 import '../services/authservice.dart';
-import 'package:spoty/screens/initial_profile.dart';
 import 'package:timer_count_down/timer_controller.dart';
 import 'package:timer_count_down/timer_count_down.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+
+import 'map_screen.dart';
 
 class SignUp extends StatefulWidget {
   static const routeName = '/SignUp';
@@ -17,23 +20,25 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
-  String mobileNo = "+9720594418545	";
+  String mobileNo = "+972595166453";
   String? phoneNo, verificationId, smsCode;
   bool codeSent = false;
   bool goToCodeScreen = true;
+
   final numberController = TextEditingController();
+  GlobalKey<FormState> formKey = GlobalKey();
 
   final CountdownController _controller = CountdownController(autoStart: false);
 
-  bool isStarted = false;
-
+  bool isStarted = true;
+  bool timeOut = true;
   var currentText = "";
 
   SmsAutoFill smsAutoFill = SmsAutoFill();
 
+
   @override
   Widget build(BuildContext context) {
-    final FirebaseAuth _auth = FirebaseAuth.instance;
 
     return SafeArea(
       child: Scaffold(
@@ -68,7 +73,7 @@ class _SignUpState extends State<SignUp> {
                     ),
                     PinCodeTextField(
                       length: 6,
-                      obscureText: true,
+                      obscureText: false,
                       animationType: AnimationType.fade,
                       pinTheme: PinTheme(
                         shape: PinCodeFieldShape.box,
@@ -111,21 +116,22 @@ class _SignUpState extends State<SignUp> {
                               const Text("Didn't receive a code?"),
                               Row(
                                 children: [
-                                  GestureDetector(
+                                  timeOut ? Container():GestureDetector(
                                     child: Text(
                                       "Resend Code",
                                       style:
                                           TextStyle(color: HexColor("#006D72")),
                                     ),
                                     onTap: () {
-                                      if (!isStarted) {
-                                        _controller.start();
-                                        setState(() {
-                                          isStarted = !isStarted;
-                                        });
-                                      } else {
+                                      verifyPhone(mobileNo).then((value) {
                                         _controller.restart();
-                                      }
+                                        setState(() {
+                                          timeOut = !timeOut;
+                                        });
+                                      });
+
+
+
                                     },
                                   ),
                                   const SizedBox(
@@ -134,12 +140,16 @@ class _SignUpState extends State<SignUp> {
                                   ),
                                   Countdown(
                                     controller: _controller,
-                                    seconds: 30,
-                                    build:
-                                        (BuildContext context, double time) =>
-                                            Text(time.toString()),
+                                    seconds: 20,
+                                    build: (BuildContext context, double time) {
+                                      _controller.start();
+                                      return Text(time.toString());
+                                      } ,
                                     interval: const Duration(milliseconds: 100),
                                     onFinished: () {
+                                      setState(() {
+                                        timeOut = !timeOut;
+                                      });
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                         const SnackBar(
@@ -157,10 +167,11 @@ class _SignUpState extends State<SignUp> {
                             onPressed: () {
                               print("verificationId $verificationId");
                               print("smsCode $smsCode");
-                              codeSent
-                                  ? AuthService().signInWithOTP(
-                                      currentText, verificationId)
-                                  : verifyPhone(mobileNo);
+                              storeLoggedIn().then((value) {
+                                print("logged in true");
+                                Navigator.popAndPushNamed(context, ShareCode.routeName);
+                              });
+
                             },
                             elevation: 2.0,
                             fillColor: HexColor("#006D72"),
@@ -189,7 +200,7 @@ class _SignUpState extends State<SignUp> {
                           fontWeight: FontWeight.normal, fontSize: 26),
                     ),
                     const Padding(
-                      padding: EdgeInsets.only(top: 24),
+                      padding: EdgeInsets.only(top: 24, left: 4),
                       child: Text(
                         "Phone Number",
                         style: TextStyle(
@@ -206,58 +217,58 @@ class _SignUpState extends State<SignUp> {
                       ),
                       child: Row(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                            ),
-                            child: Image.asset(
-                              "assets/images/flag.png",
-                              width: 32,
-                              height: 32,
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 5,
-                          ),
+
                           Expanded(
                             child: Container(
                               height: 56,
                               decoration: BoxDecoration(
-                                borderRadius: const BorderRadius.only(
-                                    topRight: Radius.circular(15),
-                                    bottomRight: Radius.circular(15)),
+                                borderRadius: const BorderRadius.all(Radius.circular(15)),
                                 color: Colors.grey.shade200,
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 4),
-                                child: TextFormField(
-                                  keyboardType: TextInputType.phone,
-                                  decoration: const InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: "Ex: +1 416 555 0134",
-                                    labelStyle: TextStyle(fontSize: 24),
-                                    hintStyle: TextStyle(
-                                        color: Colors.grey, fontSize: 18),
+                                    horizontal: 10, vertical: 2),
+                                child: Form(
+                                  key: formKey,
+                                  child: TextFormField(
+                                    validator: (value){
+                                      if(value!.isEmpty){
+                                        return "please enter phone number";
+                                      }
+                                      setState(() {
+                                        mobileNo = value;
+                                      });
+                                      return null;
+                                    },
+                                    controller: numberController,
+                                    keyboardType: TextInputType.phone,
+                                    decoration: const InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: "Ex: +1 416 555 0134",
+                                      labelStyle: TextStyle(fontSize: 24),
+                                      hintStyle: TextStyle(
+                                          color: Colors.grey, fontSize: 18),
+                                    ),
+                                    style: const TextStyle(fontSize: 15),
                                   ),
-                                  style: const TextStyle(fontSize: 15),
                                 ),
                               ),
                             ),
                           ),
                         ],
                       ),
+
                     ),
                     codeSent
                         ? Padding(
-                            padding: EdgeInsets.only(left: 25.0, right: 25.0),
+                            padding: const EdgeInsets.only(left: 25.0, right: 25.0),
                             child: TextFormField(
                               keyboardType: TextInputType.phone,
                               decoration:
-                                  InputDecoration(hintText: 'Enter OTP'),
+                                  const InputDecoration(hintText: 'Enter OTP'),
                               onChanged: (val) {
                                 setState(() {
-                                  this.smsCode = val;
+                                  smsCode = val;
                                 });
                               },
                             ))
@@ -272,10 +283,18 @@ class _SignUpState extends State<SignUp> {
                               "By registering you agree to the\nTerms and Conditions of Spoty"),
                           RawMaterialButton(
                             onPressed: () {
-                              codeSent
-                                  ? AuthService()
-                                      .signInWithOTP(smsCode, verificationId)
-                                  : verifyPhone(mobileNo);
+                              final isValid = formKey.currentState!.validate();
+                              if(isValid) {
+
+                                if(formKey.currentState != null) {
+                                  formKey.currentState!.save();
+                                }
+
+                                codeSent
+                                    ? AuthService()
+                                    .signInWithOTP(smsCode, verificationId)
+                                    : verifyPhone(mobileNo);
+                              }
                             },
                             elevation: 2.0,
                             fillColor: HexColor("#006D72"),
@@ -297,34 +316,52 @@ class _SignUpState extends State<SignUp> {
     );
   }
 
+
   Future<void> verifyPhone(phoneNo) async {
+
+    // ignore: prefer_function_declarations_over_variables
     final PhoneVerificationCompleted verified = (AuthCredential authResult) {
       AuthService().signIn(authResult);
     };
 
+    // ignore: prefer_function_declarations_over_variables
     final PhoneVerificationFailed verificationfailed =
         (FirebaseAuthException authException) {
-      print('${authException.message}');
+      if(authException != null) {
+        if (authException.code == 'invalid-phone-number') {
+          Fluttertoast.showToast(
+              msg: "The provided phone number is not valid.", toastLength: Toast.LENGTH_LONG);
+        }
+      }
     };
-
+    // ignore: prefer_function_declarations_over_variables
     final PhoneCodeSent smsSent = (String verId, int? forceResend) {
-      this.verificationId = verId;
+      verificationId = verId;
       setState(() {
-        this.codeSent = true;
-        this.goToCodeScreen = true;
+        codeSent = true;
+        goToCodeScreen = true;
       });
     };
-
+    // ignore: prefer_function_declarations_over_variables
     final PhoneCodeAutoRetrievalTimeout autoTimeout = (String verId) {
-      this.verificationId = verId;
+      setState(() {
+        timeOut = !timeOut;
+      });
+      verificationId = verId;
     };
 
     await FirebaseAuth.instance.verifyPhoneNumber(
         phoneNumber: phoneNo,
-        timeout: const Duration(seconds: 20),
+        timeout: const Duration(seconds: 24),
         verificationCompleted: verified,
         verificationFailed: verificationfailed,
         codeSent: smsSent,
         codeAutoRetrievalTimeout: autoTimeout);
   }
+
+  Future storeLoggedIn() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool("loggedIn", true);
+  }
+
 }
